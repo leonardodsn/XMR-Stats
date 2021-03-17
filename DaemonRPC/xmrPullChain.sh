@@ -15,9 +15,14 @@ port='18081'                # < monerod (Monero Daemon) port
 json_s=100                  # < size of json in blocks, in doubt leave default
 cpu_t=8                    # < amount of cpu threads
 
-#_ CALCULAR
+#_ GETS CURRENT DBHEIGHT
+dbheight_command="psql -U $user -d $database -c \"SELECT MAX(height) FROM block\""
+dbheight=$(eval $dbheight_command)               # < current db_height
+dbheight=$(echo ${dbheight/"(1 row)"})
+dbheight=$(echo "${dbheight//[^0-9.]/}")
+dbheight=$(expr $dbheight - 1)
 
-dbheight=1                  # < current db_height
+#_ GETS CURRENT BLOCKCHAIN HEIGHT
 cheight=2313585             # < current block chain height
 
 loop_s=$(expr $json_s \* $cpu_t)
