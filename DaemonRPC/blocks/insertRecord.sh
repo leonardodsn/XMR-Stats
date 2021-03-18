@@ -6,22 +6,10 @@
 #   VARIABLE CONFIGURATION
 # _______________________________________
 
-database='xmrstats' # < Your PostgreSQL database name
-user='lsa'          # < Your PostgreSQL user name
-ip='127.0.0.1'      # < monerod (Monero Daemon) IP
-port='18081'        # < monerod (Monero Daemon) port
-# json_s=100           # < size of json in blocks, in doubt leave default
-dbheight=1          # < current db_height
-cheight=2313585     # < current block chain height
-# cpu_t=12            # < amount of cpu threads
+conf_file=$5
+. ../$conf_file
 
 #________________________________________
-
-
-
-# i_height=$(expr $(expr $i \* $json_s) + 1)
-# aux=$(expr $i + 1)
-# e_height=$(expr $aux \* $json_s)
 
 i_height=$2
 e_height=$3

@@ -7,7 +7,7 @@ conf_file='pullChain.conf'  # < Configuration file name
 
 #________________________________________
 #_ Pull from conf
-. ./$conf_file
+. ../$conf_file
 
 #_ GETS CURRENT POSTGRESQL DBHEIGHT
 dbheight_command="psql -U $user -d $database -c \"SELECT MAX(height) FROM block\""
@@ -38,6 +38,6 @@ do
     init=$(expr $dbheight + $aux + 1)
     end=$(expr $init + $loop_s)
            
-    bash ./createProcesses.sh $init $end $cpu_t $json_s
+    bash ./createProcesses.sh $init $end $cpu_t $json_s $conf_file
 done
 
