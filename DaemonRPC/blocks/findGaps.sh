@@ -12,18 +12,20 @@ conf_file='pullChain.conf'  # < Configuration file name
 
 #_ GETS CURRENT POSTGRESQL DBHEIGHT
 dbheight_command="psql -U $user -d $database -c \"SELECT MAX(height) FROM block\""
-dbheight=$(eval $dbheight_command)               # < current db_height
+dbheight=$(eval $dbheight_command)              
 dbheight=$(echo ${dbheight/"(1 row)"})
 dbheight=$(echo "${dbheight//[^0-9.]/}")
 dbheight=$(expr $dbheight - 1)
 
-#_ GETS CURRENT BLOCKCHAIN HEIGHT
-bc_height_url="http://$ip:$port/get_height -H 'Content-Type: application/json'"
-bc_height_command="curl ${bc_height_url}"
-bc_height=$(eval $bc_height_command)
-bc_height=$(echo "$bc_height" | jq -r '.height')
+gap="true"
 
-gap_search="psql -U $user -d $database -c \"select series, block.height FROM generate_series(1, $dbheight, 1) series LEFT JOIN block ON series = block.height WHERE height is null ORDER BY series LIMIT 1\""
-dbgap=$(eval $gap_search)
+while [ "$gap" = "true" ]
+do
+    gap_search="psql -U $user -d $database -c \"select series, block.height FROM generate_series(1, $dbheight, 1) series LEFT JOIN block ON series = block.height WHERE height is null ORDER BY series LIMIT 1\""
+    dbgap=$(eval $gap_search)
+    dbgap=$(echo ${dbgap/"(1 row)"})
+    dbgap=$(echo "${dbgap//[^0-9.]/}")
+    dbgap=$(expr $dbgap)
 
-echo $dbgap
+    [[ $dbgap = 0 ]] && gap="false" && echo "end of gap" || bash ./insertRecord.sh $gap $dbgap $dbgap 1 $conf_file
+done

@@ -9,6 +9,8 @@ conf_file='pullChain.conf'  # < Configuration file name
 #_ Pull from conf
 . ../$conf_file
 
+bash ./findGaps.sh
+
 #_ GETS CURRENT POSTGRESQL DBHEIGHT
 dbheight_command="psql -U $user -d $database -c \"SELECT MAX(height) FROM block\""
 dbheight=$(eval $dbheight_command)               # < current db_height
@@ -25,11 +27,7 @@ bc_height=$(echo "$bc_height" | jq -r '.height')
 loop_s=$(expr $json_s \* $cpu_t)
 left=$(expr $bc_height - $dbheight)
 
-if [ $(expr $left % $loop_s) = 0 ]; then
-    loops=$(expr $left / $loop_s)
-else
-    loops=$(expr $left / $loop_s + 1 )
-fi
+[[ $(expr $left % $loop_s) = 0 ]] && loops=$(expr $left / $loop_s) || loops=$(expr $left / $loop_s + 1 )
 
 for (( i=0 ; $i<=$loops; i++))
 do
