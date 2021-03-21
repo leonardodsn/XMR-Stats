@@ -68,3 +68,5 @@ Front End WebApp in GoLang.
 #### EXTRAS:
 
 1. XMR Index going back all the way to 2014 (hourly) for XMRBTC and XMRUSD, using volume and data from different exchanges.
+
+2. Monero Miner data (no. Miners)

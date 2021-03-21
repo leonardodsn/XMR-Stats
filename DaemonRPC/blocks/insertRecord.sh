@@ -39,18 +39,8 @@ do
         reward=$(echo "$block" | jq -r '.reward')
         ts=$(echo "$block" | jq -r '.timestamp')
         
-        if [ -z "$psql" ]; then
-            
-            psql="psql -U $user -d $database -c \"INSERT INTO block (block_size, cumulative_difficulty, dpth, difficulty, hash, major_version, miner_hash, height, nonce, num_txes, reward, ts) VALUES ($block_size, $cumulative_difficulty, $dpth, $difficulty, '$hash', $major_version, '$miner_hash', $height, $nonce, $num_txes, $reward, $ts)\""
-        
-        else
-            
-            psql_append="psql -U $user -d $database -c \"INSERT INTO block (block_size, cumulative_difficulty, dpth, difficulty, hash, major_version, miner_hash, height, nonce, num_txes, reward, ts) VALUES ($block_size, $cumulative_difficulty, $dpth, $difficulty, '$hash', $major_version, '$miner_hash', $height, $nonce, $num_txes, $reward, $ts)\""
-            
-            psql="$psql\
-            $psql_append"
-            
-        fi
+        [ -z "$psql" ] && psql="psql -U $user -d $database -c \"INSERT INTO block (block_size, cumulative_difficulty, dpth, difficulty, hash, major_version, miner_hash, height, nonce, num_txes, reward, ts) VALUES ($block_size, $cumulative_difficulty, $dpth, $difficulty, '$hash', $major_version, '$miner_hash', $height, $nonce, $num_txes, $reward, $ts)\"" ||  psql_append="psql -U $user -d $database -c \"INSERT INTO block (block_size, cumulative_difficulty, dpth, difficulty, hash, major_version, miner_hash, height, nonce, num_txes, reward, ts) VALUES ($block_size, $cumulative_difficulty, $dpth, $difficulty, '$hash', $major_version, '$miner_hash', $height, $nonce, $num_txes, $reward, $ts)\"" && psql="$psql\
+        $psql_append"
     fi
 
 done
