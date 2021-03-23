@@ -14,3 +14,15 @@ function wait_sync {
 
     done
 }
+
+function gap_size {
+
+    gap_search="psql -U $user -d $database -c \"select series, block.height FROM generate_series(1, $dbheight, 1) series LEFT JOIN block ON series = block.height WHERE height is null ORDER BY series LIMIT 1\""
+    dbgap=$(eval $gap_search)
+    dbgap=$(echo ${dbgap/"(1 row)"})
+    dbgap=$(echo "${dbgap//[^0-9.]/}")
+    dbgap=$(expr $dbgap)
+    
+    echo $dbgap
+
+}
