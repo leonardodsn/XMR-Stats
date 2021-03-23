@@ -42,3 +42,12 @@ function db_height {
     
     echo $dbheight
 }
+
+function bc_height {
+    bc_height_url="http://$ip:$port/get_height -H 'Content-Type: application/json'"
+    bc_height_command="curl ${bc_height_url}"
+    bcheight=$(eval $bc_height_command)
+    bcheight=$(echo "$bcheight" | jq -r '.height')
+    
+    echo $bcheight
+}
