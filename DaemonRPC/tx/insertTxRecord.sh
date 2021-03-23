@@ -17,7 +17,7 @@ json_tx_s=$4
 
 for (( b=$i_height; b<=$e_height ; b++)); do
 
-    url="http://127.0.0.1:18081/json_rpc -d '{\"jsonrpc\":\"2.0\",\"id\":\"0\",\"method\":\"get_block\",\"params\":{\"height\":$b}}' -H 'Content-Type: application/json'"
+    url="http://$ip:$port/json_rpc -d '{\"jsonrpc\":\"2.0\",\"id\":\"0\",\"method\":\"get_block\",\"params\":{\"height\":$b}}' -H 'Content-Type: application/json'"
     command="curl ${url}"
     block=$(eval $command)
     
@@ -48,7 +48,7 @@ for (( b=$i_height; b<=$e_height ; b++)); do
     tx_hashes=$(echo $block | jq -r ".result.tx_hashes")
     txs_s=$(echo $tx_hashes | jq 'length')
     
-    txs_url="curl http://127.0.0.1:18081/get_transactions -d '{\"txs_hashes\":[$tx_hashes],\"decode_as_json\":true}' -H 'Content-Type: application/json'"
+    txs_url="http://$ip:$port/get_transactions -d '{\"txs_hashes\":$tx_hashes,\"decode_as_json\":true}' -H 'Content-Type: application/json'"
     
     echo $txs_url
     
