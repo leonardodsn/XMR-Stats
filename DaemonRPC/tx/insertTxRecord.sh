@@ -50,7 +50,7 @@ for (( b=$i_height; b<=$e_height ; b++)); do
     
     txs_url="http://$ip:$port/get_transactions -d '{\"txs_hashes\":$tx_hashes,\"decode_as_json\":true}' -H 'Content-Type: application/json'"
     
-    echo $txs_url
+#     echo $txs_url
     
     txs_command="curl ${txs_url}"
     txs=$(eval $txs_command)
