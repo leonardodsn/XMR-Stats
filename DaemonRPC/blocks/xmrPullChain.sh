@@ -15,7 +15,8 @@ conf_file='pullChain.conf'  # < Configuration file name
 source ../func.sh
 wait_sync
 
-bash ./findGaps.sh
+gap_s=$(gap_size)
+bash ./findGaps.sh $gap_s
 
 #_ GETS CURRENT POSTGRESQL DBHEIGHT
 dbheight_command="psql -U $user -d $database -c \"SELECT MAX(height) FROM block\""
