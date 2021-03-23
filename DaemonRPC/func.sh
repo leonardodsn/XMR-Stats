@@ -57,7 +57,7 @@ function tx_height {
     txheight=$(eval $txheight_command)              
     txheight=$(echo ${txheight/"(1 row)"})
     txheight=$(echo "${txheight//[^0-9.]/}")
-    txheight=$(expr $txheight - 1)
+    [[ $txheight > 0 ]] && txheight=$(expr $txheight - 1) || txheight=0
     
     echo $txheight
 }

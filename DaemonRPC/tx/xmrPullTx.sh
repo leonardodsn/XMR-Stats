@@ -21,6 +21,7 @@ wait_sync
 
 #_ GETS CURRENT POSTGRESQL TRANSACTION DBHEIGHT
 txheight=$(tx_height)
+echo $txheight
 
 #_ GETS CURRENT BLOCKCHAIN HEIGHT
 bcheight=$(bc_height)
