@@ -16,7 +16,7 @@ do
     aux=$(expr $h + 1)
     e_height=$(expr $aux \* $json_s + $init - 1)
     
-    ./insertRecord.sh $h $i_height $e_height $json_s $conf_file &
+    ./insertTxRecord.sh $h $i_height $e_height $json_s $conf_file &
     
     pids="$pids $!"
 
