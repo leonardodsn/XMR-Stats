@@ -20,11 +20,7 @@ for (( b=$i_height; b<=$e_height ; b++)); do
     url="http://$ip:$port/json_rpc -d '{\"jsonrpc\":\"2.0\",\"id\":\"0\",\"method\":\"get_block\",\"params\":{\"height\":$b}}' -H 'Content-Type: application/json'"
     command="curl ${url}"
     block=$(eval $command)
-    
-    #_ BLOCK TIMESTAMP => TIMESTAMP FOR ALL TRANSACTIONS
-#     block_timestamp=$(echo $block | jq -r '.result.block_header.timestamp')
-    
-    
+
     #_ REGISTER COINBASE TRANSACTION
     
     coinbase_tx=$(echo $block | jq -r '.result.json' | jq -r '.miner_tx')
@@ -88,20 +84,3 @@ done
 
 eval $psql
 psql=''
-
-
-
-
-
-# 
-# GET LIST OF TRANSACTION HASHES BY BLOCK >>>>> curl http://127.0.0.1:18081/json_rpc -d '{"jsonrpc":"2.0","id":"0","method":"get_block","params":{"height":2310000}}' -H 'Content-Type: application/json'
-# GET TRANSACTION INFO BY HASH >>>>>>>  curl http://127.0.0.1:18081/get_transactions -d '{"txs_hashes":["d6e48158472848e6687173a91ae6eebfa3e1d778e65252ee99d7515d63090408"]}' -H 'Content-Type: application/json'
-# curl http://127.0.0.1:18081/get_transactions -d '{"txs_hashes":["22c0cc63c56bd09c377d968a6242e4cc45d7be4a4a4c6b95d6bcbbac93ae6fb3","d224b3aca495ee730a837dfd46b613d4cc36e47e5d424d65461fa7254ed43538"],"decode_as_json":true}' -H 'Content-Type: application/json'
-
-
-
-#LIST OF USEFUL COMMANDS
-
-
-#curl http://127.0.0.1:18081/json_rpc -d '{"jsonrpc":"2.0","id":"0","method":"get_block","params":{"height":2310000}}' -H 'Content-Type: application/json' | jq -r ".result.json"
-#curl http://127.0.0.1:18081/get_transactions -d '{"txs_hashes":["22c0cc63c56bd09c377d968a6242e4cc45d7be4a4a4c6b95d6bcbbac93ae6fb3","d224b3aca495ee730a837dfd46b613d4cc36e47e5d424d65461fa7254ed43538"],"decode_as_json":true}' -H 'Content-Type: application/json' | jq -r '.txs[0].as_json'
