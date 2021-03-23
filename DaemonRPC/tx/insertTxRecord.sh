@@ -13,7 +13,7 @@ conf_file=$5
 
 i_height=$2
 e_height=$3
-json_s=$4
+json_tx_s=$4
 
 for (( b=$i_height; b<=$e_height ; b++)); do
 
@@ -49,30 +49,39 @@ for (( b=$i_height; b<=$e_height ; b++)); do
     txs_s=$(echo $tx_hashes | jq 'length')
     
     txs_url="curl http://127.0.0.1:18081/get_transactions -d '{\"txs_hashes\":[$tx_hashes],\"decode_as_json\":true}' -H 'Content-Type: application/json'"
+    
+    echo $txs_url
+    
     txs_command="curl ${txs_url}"
     txs=$(eval $txs_command)
     
     for (( t=0 ; $t<$txs_s; t++))
     do
 
-        jq_r=".txs[$t].as_json"
+        jq_r=".txs[$t]"
         tx=$(echo "$txs" | jq -r $jq_r)
+        tx_asjson=$(echo "$tx" | jq -r '.as_json')
         
         if [ ! -z "$tx" ]; then
-            height=$(echo "$tx" | jq -r '')
-            hash=$(echo "$tx" | jq -r '')
-            ins=$(echo "$tx" | jq -r '')
-            outs=$(echo "$tx" | jq -r '')
-            tx_size=$(echo "$tx" | jq -r '')
-            fee=$(echo "$tx" | jq -r '')
-            tx_version=$(echo "$tx" | jq -r '')
-            rct_type=$(echo "$tx" | jq -r '')
+            height=$(echo "$tx" | jq -r '.block_height')
+            hash=$(echo "$tx" | jq -r '.tx_hash')
+            ins=$(echo "$tx_asjson" | jq -r '.vin | length')
+            outs=$(echo "$tx_asjson" | jq -r '.vout | length')
+            
+            tx_hex=$(echo "$tx" | jq -r '.as_hex')
+            tx_size=$(echo $tx_hex | tr -d '\n' | wc -c)
+            tx_size=$(expr $tx_size / 2)
+            
+            fee=$(echo "$tx_asjson" | jq -r '.rct_signatures.txnFee')
+            tx_version=$(echo "$tx_asjson" | jq -r '.version')
+            rct_type=$(echo "$tx_asjson" | jq -r '.rct_signatures.type')
             
             [ -z "$psql" ] && psql="psql -U $user -d $database -c \"INSERT INTO tx (height, hash, ins, outs, tx_size, fee, tx_version, rct_type) VALUES ($height,'$hash',$ins,$outs,$tx_size,$fee,$tx_version,$rct_type)\"" || psql_append="psql -U $user -d $database -c \"INSERT INTO tx (height, hash, ins, outs, tx_size, fee, tx_version, rct_type) VALUES ($height,'$hash',$ins,$outs,$tx_size,$fee,$tx_version,$rct_type)\""  && psql="$psql\
             $psql_append"
         fi
         
         tx=''
+        tx_asjson=''
     done
     
 done

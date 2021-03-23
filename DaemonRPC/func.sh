@@ -53,11 +53,11 @@ function bc_height {
 }
 
 function tx_height {
-    dbheight_command="psql -U $user -d $database -c \"SELECT MAX(height) FROM tx\""
-    dbheight=$(eval $dbheight_command)              
-    dbheight=$(echo ${dbheight/"(1 row)"})
-    dbheight=$(echo "${dbheight//[^0-9.]/}")
-    dbheight=$(expr $dbheight - 1)
+    txheight_command="psql -U $user -d $database -c \"SELECT MAX(height) FROM tx\""
+    txheight=$(eval $txheight_command)              
+    txheight=$(echo ${txheight/"(1 row)"})
+    txheight=$(echo "${txheight//[^0-9.]/}")
+    txheight=$(expr $txheight - 1)
     
-    echo $dbheight
+    echo $txheight
 }

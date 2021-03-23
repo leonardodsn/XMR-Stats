@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cpu_t=$3
-json_s=$4
+json_tx_s=$4
 init=$1
 end=$2
 conf_file=$5
@@ -12,11 +12,11 @@ pids=""
 
 for (( h=0 ; $h < $cpu_t ; h++))
 do
-    i_height=$(expr $(expr $h \* $json_s) + $init)
+    i_height=$(expr $(expr $h \* $json_tx_s) + $init)
     aux=$(expr $h + 1)
-    e_height=$(expr $aux \* $json_s + $init - 1)
+    e_height=$(expr $aux \* $json_tx_s + $init - 1)
     
-    ./insertTxRecord.sh $h $i_height $e_height $json_s $conf_file &
+    ./insertTxRecord.sh $h $i_height $e_height $json_tx_s $conf_file &
     
     pids="$pids $!"
 
