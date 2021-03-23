@@ -2,12 +2,18 @@
 
 #   VARIABLE CONFIGURATION
 # _______________________________________
+DIR=$(eval "dirname $(realpath $0)")
+# cd $DIR
+# echo $dir
 
 conf_file='pullChain.conf'  # < Configuration file name
 
 #________________________________________
 #_ Pull from conf
 . ../$conf_file
+
+source ../func.sh
+wait_sync
 
 bash ./findGaps.sh
 
@@ -37,4 +43,3 @@ do
            
     bash ./createProcesses.sh $init $end $cpu_t $json_s $conf_file
 done
-

@@ -27,5 +27,5 @@ do
     dbgap=$(echo "${dbgap//[^0-9.]/}")
     dbgap=$(expr $dbgap)
 
-    [[ $dbgap = 0 ]] && gap="false" && echo "end of gap" || bash ./insertRecord.sh $gap $dbgap $dbgap 1 $conf_file
+    [[ $dbgap = 0 ]] && gap="false" && echo "no gaps" || bash ./insertRecord.sh $gap $dbgap $(expr $dbgap + 9) 10 $conf_file
 done
