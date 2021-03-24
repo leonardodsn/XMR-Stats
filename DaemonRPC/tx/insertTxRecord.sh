@@ -13,53 +13,74 @@ conf_file=$5
 
 i_height=$2
 e_height=$3
-json_s=$4
+json_tx_s=$4
 
-url="http://$ip:$port/json_rpc -d '{\"jsonrpc\":\"2.0\",\"id\":\"0\",\"method\":\"get_block_headers_range\",\"params\":{\"start_height\":$i_height,\"end_height\":$e_height}}' -H 'Content-Type:application/json'"
-command="curl ${url}"
-blocks=$(eval $command)  
+for (( b=$i_height; b<=$e_height ; b++)); do
 
-for (( k=0 ; $k<$json_s; k++))
-do
+    url="http://$ip:$port/json_rpc -d '{\"jsonrpc\":\"2.0\",\"id\":\"0\",\"method\":\"get_block\",\"params\":{\"height\":$b}}' -H 'Content-Type: application/json'"
+    command="curl ${url}"
+    block=$(eval $command)
 
-    jq_r=".result.headers[$k]"
-    block=$(echo "$blocks" | jq -r $jq_r)
+    #_ REGISTER COINBASE TRANSACTION
     
-    if [ ! -z "$block" ]; then
-        block_size=$(echo "$block" | jq -r '.block_size')     
-        cumulative_difficulty=$(echo "$block" | jq -r '.cumulative_difficulty')
-        dpth=$(echo "$block" | jq -r '.depth')
-        difficulty=$(echo "$block" | jq -r '.difficulty')
-        hash=$(echo "$block" | jq -r '.hash')
-        major_version=$(echo "$block" | jq -r '.major_version')
-        miner_hash=$(echo "$block" | jq -r '.miner_tx_hash')
-        height=$(echo "$block" | jq -r '.height')
-        nonce=$(echo "$block" | jq -r '.nonce')
-        num_txes=$(echo "$block" | jq -r '.num_txes')
-        reward=$(echo "$block" | jq -r '.reward')
-        ts=$(echo "$block" | jq -r '.timestamp')
+    coinbase_tx=$(echo $block | jq -r '.result.json' | jq -r '.miner_tx')
+    miner_hash=$(echo $block | jq -r '.result.miner_tx_hash')
+    
+    if [ ! -z "$coinbase_tx" ]; then
+    
+        tx_version=$(echo $coinbase_tx | jq -r '.version')
+        height=$(echo $coinbase_tx | jq -r '.vin[0].gen.height')
+        amount=$(echo $coinbase_tx | jq -r '.vout[0].amount')
+        rct_type=$(echo $coinbase_tx | jq -r '.rct_signatures.type')
         
-        if [ -z "$psql" ]; then
-            
-            psql="psql -U $user -d $database -c \"INSERT INTO block (block_size, cumulative_difficulty, dpth, difficulty, hash, major_version, miner_hash, height, nonce, num_txes, reward, ts) VALUES ($block_size, $cumulative_difficulty, $dpth, $difficulty, '$hash', $major_version, '$miner_hash', $height, $nonce, $num_txes, $reward, $ts)\""
+        [ -z "$psql" ] && psql="psql -U $user -d $database -c \"INSERT INTO tx (height, hash,  tx_version,amount, rct_type) VALUES ($height, '$miner_hash', $tx_version, $amount, $rct_type)\"" || psql_append="psql -U $user -d $database -c \"INSERT INTO tx (height, hash,  tx_version,amount, rct_type) VALUES ($height, '$miner_hash', $tx_version, $amount, $rct_type)\""  && psql="$psql\
+        $psql_append"
         
-        else
-            
-            psql_append="psql -U $user -d $database -c \"INSERT INTO block (block_size, cumulative_difficulty, dpth, difficulty, hash, major_version, miner_hash, height, nonce, num_txes, reward, ts) VALUES ($block_size, $cumulative_difficulty, $dpth, $difficulty, '$hash', $major_version, '$miner_hash', $height, $nonce, $num_txes, $reward, $ts)\""
-            
-            psql="$psql\
-            $psql_append"
-            
-        fi
+        coinbase_tx=''
+    
     fi
 
+    #REGISTER OTHER TRANSACTIONS
+    tx_hashes=$(echo $block | jq -r ".result.tx_hashes")
+    txs_s=$(echo $tx_hashes | jq 'length')
+    
+    txs_url="http://$ip:$port/get_transactions -d '{\"txs_hashes\":$tx_hashes,\"decode_as_json\":true}' -H 'Content-Type: application/json'"
+    
+#     echo $txs_url
+    
+    txs_command="curl ${txs_url}"
+    txs=$(eval $txs_command)
+    
+    for (( t=0 ; $t<$txs_s; t++))
+    do
+
+        jq_r=".txs[$t]"
+        tx=$(echo "$txs" | jq -r $jq_r)
+        tx_asjson=$(echo "$tx" | jq -r '.as_json')
+        
+        if [ ! -z "$tx" ]; then
+            height=$(echo "$tx" | jq -r '.block_height')
+            hash=$(echo "$tx" | jq -r '.tx_hash')
+            ins=$(echo "$tx_asjson" | jq -r '.vin | length')
+            outs=$(echo "$tx_asjson" | jq -r '.vout | length')
+            
+            tx_hex=$(echo "$tx" | jq -r '.as_hex')
+            tx_size=$(echo $tx_hex | tr -d '\n' | wc -c)
+            tx_size=$(expr $tx_size / 2)
+            
+            fee=$(echo "$tx_asjson" | jq -r '.rct_signatures.txnFee')
+            tx_version=$(echo "$tx_asjson" | jq -r '.version')
+            rct_type=$(echo "$tx_asjson" | jq -r '.rct_signatures.type')
+            
+            [ -z "$psql" ] && psql="psql -U $user -d $database -c \"INSERT INTO tx (height, hash, ins, outs, tx_size, fee, tx_version, rct_type) VALUES ($height,'$hash',$ins,$outs,$tx_size,$fee,$tx_version,$rct_type)\"" || psql_append="psql -U $user -d $database -c \"INSERT INTO tx (height, hash, ins, outs, tx_size, fee, tx_version, rct_type) VALUES ($height,'$hash',$ins,$outs,$tx_size,$fee,$tx_version,$rct_type)\""  && psql="$psql\
+            $psql_append"
+        fi
+        
+        tx=''
+        tx_asjson=''
+    done
+    
 done
 
-# echo $psql
 eval $psql
 psql=''
-
-
-
-# GET LIST OF TRANSACTION HASHES BY BLOCK >>>>> curl http://127.0.0.1:18081/json_rpc -d '{"jsonrpc":"2.0","id":"0","method":"get_block","params":{"height":2310000}}' -H 'Content-Type: application/json'
-# GET TRANSACTION INFO BY HASH >>>>>>>  curl http://127.0.0.1:18081/get_transactions -d '{"txs_hashes":["d6e48158472848e6687173a91ae6eebfa3e1d778e65252ee99d7515d63090408"]}' -H 'Content-Type: application/json'
