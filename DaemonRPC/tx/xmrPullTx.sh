@@ -39,5 +39,3 @@ do
            
     bash ./createTxProcesses.sh $init $end $cpu_t $json_tx_s $conf_file
 done
-
-bash ./blockUpdater.sh $conf_file

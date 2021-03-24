@@ -30,13 +30,16 @@ left=$(expr $bcheight - $dbheight)
 
 [[ $(expr $left % $loop_s) = 0 ]] && loops=$(expr $left / $loop_s) || loops=$(expr $left / $loop_s + 1 )
 
-for (( i=0 ; $i<=$loops; i++))
-do
-    aux=$(expr $i \* $loop_s)
-    init=$(expr $dbheight + $aux + 1)
-    end=$(expr $init + $loop_s)
-           
-    bash ./createProcesses.sh $init $end $cpu_t $json_s $conf_file
-done
+echo $loops
+if [[ $loops > 1 ]]; then
+    for (( i=0 ; $i<=$loops; i++))
+    do
+        aux=$(expr $i \* $loop_s)
+        init=$(expr $dbheight + $aux + 1)
+        end=$(expr $init + $loop_s)
+            
+        bash ./createProcesses.sh $init $end $cpu_t $json_s $conf_file
+    done
+fi
 
 bash ./blockUpdater.sh $conf_file

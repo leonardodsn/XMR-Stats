@@ -38,7 +38,7 @@ function db_height {
     dbheight=$(eval $dbheight_command)              
     dbheight=$(echo ${dbheight/"(1 row)"})
     dbheight=$(echo "${dbheight//[^0-9.]/}")
-    dbheight=$(expr $dbheight - 1)
+    dbheight=$(expr $dbheight)
     
     echo $dbheight
 }
