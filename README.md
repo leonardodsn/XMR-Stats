@@ -13,7 +13,7 @@ XMRStats aims to be a _Open Source and free of ads_ website that offers *up to d
 > Back end in Bash and PostgreSQL
 Front End WebApp in GoLang.
 
-### Project Scope
+## Project Scope
 
 #### Website 
 
@@ -24,12 +24,6 @@ Front End WebApp in GoLang.
 3. RSS Feed for high transaction counts/Other measures.
 
 4. No ads, no payment.
-
-#### Block explorer
-
-1. Simple and responsive block explorer.
-
-2. point click block data to chart.
 
 #### API Request data
 
