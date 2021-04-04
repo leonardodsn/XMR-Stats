@@ -61,3 +61,21 @@ function tx_height {
     
     echo $txheight
 }
+
+function tx_gap_size {
+
+    dbheight_command="psql -U $user -d $database -c \"SELECT MAX(height) FROM tx\""
+    dbheight=$(eval $dbheight_command)              
+    dbheight=$(echo ${dbheight/"(1 row)"})
+    dbheight=$(echo "${dbheight//[^0-9.]/}")
+    dbheight=$(expr $dbheight - 1)
+
+    gap_search="psql -U $user -d $database -c \"select COUNT(*) FROM ( select series, tx.height from generate_series(1, $dbheight, 1) series left join tx on series = tx.height where height is null order by series) as countz\""
+    dbgap_size=$(eval $gap_search)
+    dbgap_size=$(echo ${dbgap_size/"(1 row)"})
+    dbgap_size=$(echo "${dbgap_size//[^0-9.]/}")
+    dbgap_size=$(expr $dbgap_size)
+    
+    echo $dbgap_size
+
+}

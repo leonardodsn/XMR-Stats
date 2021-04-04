@@ -16,8 +16,8 @@ source ../func.sh
 wait_sync
 
 #_ GETS SIZE OF THE GAP BETWEEN BLOCK HEIGHTS IN DB 
-# gap_s=$(gap_size)
-# bash ./findGaps.sh $gap_s
+gap_s=$(tx_gap_size)
+bash ./txFindGaps.sh $gap_s
 
 #_ GETS CURRENT POSTGRESQL TRANSACTION DBHEIGHT
 txheight=$(tx_height)
