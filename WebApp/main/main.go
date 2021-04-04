@@ -1,13 +1,14 @@
 package main
 
 import (
-	"log"
-	"runtime"
-	"time"
 	"github.com/go-gl/gl/v3.2-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/sindbach/nuklear/nk"
 	"github.com/xlab/closer"
+	"log"
+	"net/http"
+	"runtime"
+	"time"
 )
 
 const (
@@ -21,8 +22,8 @@ func init() {
 	runtime.LockOSThread()
 }
 
-func main() {
-	////////////////////////////////////////////
+func index_handler(w http.ResponseWriter, r *http.Request) {
+
 	if err := glfw.Init(); err != nil {
 		closer.Fatalln(err)
 	}
@@ -100,6 +101,14 @@ func plotWidget(ctx *nk.Context, canvas *nk.CommandBuffer) {
 			}
 		}
 	}
+
+}
+
+func main() {
+
+	http.HandleFunc("/", index_handler)
+	http.ListenAndServe(":8080", nil)
+
 }
 
 func gfxMain(win *glfw.Window, ctx *nk.Context) {
