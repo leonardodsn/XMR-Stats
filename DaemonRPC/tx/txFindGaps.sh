@@ -29,5 +29,5 @@ do
     dbgap=$(echo "${dbgap//[^0-9.]/}")
     dbgap=$(expr $dbgap)
 
-    [[ $dbgap = 0 ]] && gap="false" && echo "no gaps" || ([[ $gap_s < $json_tx_s && $dbgap != 0 ]] && bash ./insertTxRecord.sh $gap $dbgap $(expr $dbgap + 9) 10 $conf_file ) || (bash ./createTxProcesses.sh $dbgap $(expr $dbgap + $(expr $json_s \* $cpu_t ) ) $cpu_t $json_s $conf_file)
+    [[ $dbgap = 0 ]] && gap="false" && echo "no gaps" || ([[ $gap_s < $json_tx_s && $dbgap != 0 ]] && bash ./insertTxRecord.sh $gap $dbgap $(expr $dbgap + 9) 10 $conf_file ) || (bash ./createTxProcesses.sh $dbgap $(expr $dbgap + $(expr $json_s \* $cpu_t ) ) $cpu_t $json_tx_s $conf_file)
 done
