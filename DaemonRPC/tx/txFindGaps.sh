@@ -13,7 +13,7 @@ conf_file='pullChain.conf'  # < Configuration file name
 gap_s=$1
 
 #_ GETS CURRENT POSTGRESQL DBHEIGHT
-dbheight_command="psql -U $user -d $database -c \"SELECT MAX(height) FROM block\""
+dbheight_command="psql -U $user -d $database -c \"SELECT MAX(height) FROM tx\""
 dbheight=$(eval $dbheight_command)              
 dbheight=$(echo ${dbheight/"(1 row)"})
 dbheight=$(echo "${dbheight//[^0-9.]/}")
@@ -28,6 +28,8 @@ do
     dbgap=$(echo ${dbgap/"(1 row)"})
     dbgap=$(echo "${dbgap//[^0-9.]/}")
     dbgap=$(expr $dbgap)
+    
+    echo $dbgap
 
     [[ $dbgap = 0 ]] && gap="false" && echo "no gaps" || ([[ $gap_s < $json_tx_s && $dbgap != 0 ]] && bash ./insertTxRecord.sh $gap $dbgap $(expr $dbgap + 9) 10 $conf_file ) || (bash ./createTxProcesses.sh $dbgap $(expr $dbgap + $(expr $json_s \* $cpu_t ) ) $cpu_t $json_tx_s $conf_file)
 done
