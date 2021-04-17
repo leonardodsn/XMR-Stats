@@ -79,11 +79,3 @@ function tx_gap_size {
     echo $dbgap_size
 
 }
-
-function wipe_tx_pool {
-
-    wipeCommand="psql -U $user -d $database -c \"select COUNT(*) FROM ( select series, tx.height from generate_series(1, $dbheight, 1) series left join tx on series = tx.height where height is null order by series) as countz\""
-
-    wipe=$(eval $wipeCommand)
-
-}
